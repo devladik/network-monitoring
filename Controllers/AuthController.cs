@@ -42,20 +42,26 @@ public class AuthController : ControllerBase
         if (!result.Succeeded)
             return BadRequest(result.Errors);
 
+        Console.WriteLine($"User created successfully: [{dto.Email}] [{dto.Password}]");
         return Ok("User created successfully");
     }
 
-    [Authorize]
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginDto dto)
     {
         var user = await _userManager.FindByEmailAsync(dto.Email);
         if (user == null)
+        {
+            Console.WriteLine("No email ");
             return Unauthorized("Invalid email or password");
+        }
 
         var passwordValid = await _userManager.CheckPasswordAsync(user, dto.Password);
         if (!passwordValid)
+        {
+            Console.WriteLine("Invalid password");
             return Unauthorized("Invalid email or password");
+        }
 
         var claims = new List<Claim>
         {

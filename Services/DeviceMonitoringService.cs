@@ -20,7 +20,7 @@ public class DeviceMonitoringService
 
     public async Task CheckDevicesAsync(CancellationToken cancellationToken)
     {
-        var devices = await _dbContext.Devices
+        /*var devices = await _dbContext.Devices
             .ToListAsync(cancellationToken);
 
         Console.WriteLine(
@@ -35,7 +35,7 @@ public class DeviceMonitoringService
         await _dbContext.DeviceStatusHistories
             .AddRangeAsync(histories, cancellationToken);
 
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);*/
 
         Console.WriteLine($"Monitoring cycle completed at {DateTime.UtcNow}");
     }
