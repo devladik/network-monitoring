@@ -11,28 +11,21 @@ namespace a_webapi.Controllers;
 public class DevicesController(DeviceService deviceService) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAll()
-    {
-        var devices = await deviceService.GetAllAsync();
-        return Ok(devices);
-    }
-
-    [HttpGet]
     public async Task<ActionResult<PagedResultDto<DeviceDto>>> GetAll(
         [FromQuery] DeviceQueryDto query)
     {
-        if(query.Page <1)
+        if (query.Page < 1)
             return Problem(
                 statusCode: StatusCodes.Status400BadRequest,
                 title: "Invalid pagination parameters",
                 detail: "Page must be greater than or equal to 1.");
-        
-        if(query.PageSize < 1 || query.PageSize > 100)
+
+        if (query.PageSize < 1 || query.PageSize > 100)
             return Problem(
                 statusCode: StatusCodes.Status400BadRequest,
                 title: "Invalid pagination parameters",
                 detail: "PageSize must be between 1 and 100.");
-        
+
         var devices = await deviceService.GetAllAsync(query);
         return Ok(devices);
     }

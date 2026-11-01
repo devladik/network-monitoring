@@ -15,7 +15,7 @@ builder.Services.AddHostedService<DeviceMonitoringBackgroundService>();
 
 builder.Services.Configure<MonitoringOptions>(builder.Configuration.GetSection("Monitoring"));
 
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApiDocument();
 builder.Services.AddControllers();
 
 builder.Services.AddProblemDetails();
