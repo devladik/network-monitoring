@@ -1,14 +1,10 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using a_webapi.Configuration;
+﻿using System.Security.Claims;
 using a_webapi.DTOs.Auth;
 using a_webapi.Identity;
+using a_webapi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 
 namespace a_webapi.Controllers;
 
@@ -17,12 +13,12 @@ namespace a_webapi.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly JwtOptions _jwtOptions;
+    private readonly AuthService _authService;
 
-    public AuthController(UserManager<ApplicationUser> userManager, IOptions<JwtOptions> jwtOptions)
+    public AuthController(UserManager<ApplicationUser> userManager, AuthService authService)
     {
         _userManager = userManager;
-        _jwtOptions = jwtOptions.Value;
+        _authService = authService;
     }
 
     [HttpPost("register")]
@@ -42,7 +38,6 @@ public class AuthController : ControllerBase
         if (!result.Succeeded)
             return BadRequest(result.Errors);
 
-        Console.WriteLine($"User created successfully: [{dto.Email}] [{dto.Password}]");
         return Ok("User created successfully");
     }
 
@@ -51,39 +46,37 @@ public class AuthController : ControllerBase
     {
         var user = await _userManager.FindByEmailAsync(dto.Email);
         if (user == null)
-        {
-            Console.WriteLine("No email ");
             return Unauthorized("Invalid email or password");
-        }
 
         var passwordValid = await _userManager.CheckPasswordAsync(user, dto.Password);
         if (!passwordValid)
-        {
-            Console.WriteLine("Invalid password");
             return Unauthorized("Invalid email or password");
-        }
 
-        var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.NameIdentifier, user.Id),
-            new Claim(ClaimTypes.Email, user.Email!)
-        };
+        var tokens = await _authService.CreateTokenPairAsync(user);
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.SigningKey));
-        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        return Ok(tokens);
+    }
 
-        var token = new JwtSecurityToken(
-            issuer: _jwtOptions.Issuer,
-            audience: _jwtOptions.Audience,
-            claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(_jwtOptions.ExpirationMinutes),
-            signingCredentials: credentials);
+    [HttpPost("refresh-token")]
+    public async Task<IActionResult> RefreshToken(RefreshTokenDto dto)
+    {
+        var tokens = await _authService.RefreshAsync(dto.RefreshToken);
+        if (tokens == null)
+            return Unauthorized("Invalid or expired refresh token");
+        
+        return Ok(tokens);
+    }
 
-        var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+    [Authorize]
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout(RefreshTokenDto dto)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        return Ok(new LoginResponseDto
-        {
-            Token = tokenString,
-        });
+        if (userId == null)
+            return Unauthorized();
+        
+        await _authService.RevokeAsync(dto.RefreshToken,  userId);
+        return NoContent();
     }
 }

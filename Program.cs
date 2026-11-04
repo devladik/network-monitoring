@@ -49,6 +49,7 @@ builder.Services
         };
     });
 
+builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<DeviceService>();
 builder.Services.AddScoped<DeviceMonitoringService>();
 builder.Services.AddHostedService<DeviceMonitoringBackgroundService>();

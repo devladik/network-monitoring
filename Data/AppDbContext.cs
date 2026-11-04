@@ -9,4 +9,5 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
 {
     public DbSet<Device> Devices { get; set; }
     public DbSet<DeviceStatusHistory> DeviceStatusHistories { get; set; }
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
 }
