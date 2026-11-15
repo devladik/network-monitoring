@@ -23,9 +23,9 @@ public class DeviceMonitoringService
         /*var devices = await _dbContext.Devices
             .ToListAsync(cancellationToken);
 
-        /*Console.WriteLine(
+        Console.WriteLine(
             $"Getting devices done at {DateTime.UtcNow}. " +
-            $"Found: {devices.Count}");*/
+            $"Found: {devices.Count}");
 
         var tasks = devices.Select(device =>
             CheckDeviceAsync(device, cancellationToken));
@@ -37,7 +37,7 @@ public class DeviceMonitoringService
 
         await _dbContext.SaveChangesAsync(cancellationToken);*/
 
-        //Console.WriteLine($"Monitoring cycle completed at {DateTime.UtcNow}");
+        Console.WriteLine($"Monitoring cycle completed at {DateTime.UtcNow}");
     }
 
     private async Task<DeviceStatusHistory> CheckDeviceAsync(Device device, CancellationToken cancellationToken)
@@ -57,10 +57,10 @@ public class DeviceMonitoringService
             device.IsOnline = isOnline;
             device.LastCheck = checkedAt;
 
-            /*Console.WriteLine(
+            Console.WriteLine(
                 $"{device.Name} ({device.IpAddress}) " +
                 $"Online: {isOnline}, " +
-                $"Response: {reply.RoundtripTime} ms");*/
+                $"Response: {reply.RoundtripTime} ms");
 
             return new DeviceStatusHistory
             {
