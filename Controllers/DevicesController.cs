@@ -1,6 +1,7 @@
-﻿using a_webapi.Dto;
-using a_webapi.Dto.Pagination;
+﻿using a_webapi.DTOs.Device;
+using a_webapi.DTOs.Pagination;
 using a_webapi.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi;
 
@@ -8,6 +9,7 @@ namespace a_webapi.Controllers;
 
 [ApiController]
 [Route("api/devices")]
+[Authorize]
 public class DevicesController(DeviceService deviceService) : ControllerBase
 {
     [HttpGet]
